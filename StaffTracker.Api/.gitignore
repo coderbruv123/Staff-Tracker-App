@@ -1,0 +1,6 @@
+# Build output
+bin/
+obj/
+
+# SQLite database (generated at runtime by EnsureCreated + DataSeed)
+*.db*
