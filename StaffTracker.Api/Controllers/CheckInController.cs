@@ -42,21 +42,28 @@ public class CheckInController : ControllerBase
             assignment.Status = "InProgress";
         }
 
-        var log = await _checkInService.CheckInAsync(assignment.Id, dto.Lat, dto.Lng);
-        await BroadcastUpdateAsync();
-        return Ok(new
+        try
         {
-            message = "Checked in",
-            log = new
+            var log = await _checkInService.CheckInAsync(assignment.Id, dto.Lat, dto.Lng);
+            await BroadcastUpdateAsync();
+            return Ok(new
             {
-                log.Id,
-                log.AssignmentId,
-                log.Timestamp,
-                log.EventType,
-                log.Lat,
-                log.Lng
-            }
-        });
+                message = "Checked in",
+                log = new
+                {
+                    log.Id,
+                    log.AssignmentId,
+                    log.Timestamp,
+                    log.EventType,
+                    log.Lat,
+                    log.Lng
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpPost("{id:int}/checkout")]

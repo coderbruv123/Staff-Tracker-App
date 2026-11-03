@@ -51,9 +51,9 @@ public class DataSeed : IDataSeed
         if (!_ctx.Locations.Any())
         {
             _ctx.Locations.AddRange(
-                new Location { Name = "Location 1", Address = "100 Main St, City A", IsActive = true },
-                new Location { Name = "Location 2", Address = "200 Oak Ave, City B", IsActive = true },
-                new Location { Name = "Location 3", Address = "300 Pine Rd, City C", IsActive = true });
+                new Location { Name = "Location 1", Address = "100 Main St, City A", IsActive = true, Latitude = 40.7128, Longitude = -74.0060 },
+                new Location { Name = "Location 2", Address = "200 Oak Ave, City B", IsActive = true, Latitude = 51.5074, Longitude = -0.1278 },
+                new Location { Name = "Location 3", Address = "300 Pine Rd, City C", IsActive = true, Latitude = 35.6762, Longitude = 139.6503 });
             await _ctx.SaveChangesAsync();
         }
 

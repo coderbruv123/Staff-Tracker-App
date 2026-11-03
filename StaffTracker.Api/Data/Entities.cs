@@ -72,6 +72,8 @@ public class Location
     public string? Address { get; set; }
     public string? Notes { get; set; }
     public bool IsActive { get; set; } = true;
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
     public virtual ICollection<DailyAssignment> Assignments { get; set; } = new List<DailyAssignment>();
 }
 
