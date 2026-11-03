@@ -8,6 +8,8 @@ export default function Self() {
   const [logs, setLogs] = useState<any[]>([])
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [locating, setLocating] = useState(false)
+  const [locationError, setLocationError] = useState<string | null>(null)
 
   const load = async () => {
     try {
@@ -59,6 +61,32 @@ export default function Self() {
       setError(err.response?.data?.error || 'Check-out failed')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const checkInWithLocation = async () => {
+    if (!navigator.geolocation) {
+      setLocationError('Location services are not supported in this browser.')
+      return
+    }
+    setLocating(true)
+    setLocationError(null)
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 8000,
+        })
+      })
+      await checkInApi.checkIn(
+        pos.coords.latitude.toString(),
+        pos.coords.longitude.toString()
+      )
+      load()
+    } catch (err: any) {
+      setLocationError(err.message || 'Could not get your location.')
+    } finally {
+      setLocating(false)
     }
   }
 
@@ -114,7 +142,25 @@ export default function Self() {
               {saving ? 'Checking in...' : 'Mark arrived'}
             </button>
           )}
+          <button
+            className="btn btn-ghost"
+            onClick={checkInWithLocation}
+            disabled={saving || locating}
+            title="Auto-fill your coordinates using your device's location"
+          >
+            {locating ? 'Locating...' : 'Use my position'}
+          </button>
+          {locationError && <p className="error" style={{ marginTop: 8 }}>{locationError}</p>}
           {error && <p className="error" style={{ marginTop: 8 }}>{error}</p>}
+          <p className="subtitle" style={{ marginTop: 6 }}>
+            {assignment.checkedInAt
+              ? (() => {
+                  const last = logs.slice().reverse().find((l: any) => l.Lat != null || l.Lng != null)
+                  if (!last?.Lat && last?.Lng == null) return 'Last recorded position: none'
+                  return `Last recorded position: Lat ${Number(last.Lat).toFixed(5)}, Lng ${Number(last.Lng).toFixed(5)}`
+                })()
+              : ''}
+          </p>
         </div>
       </div>
 
