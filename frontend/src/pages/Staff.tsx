@@ -8,6 +8,10 @@ export default function Staff() {
   const [pending, setPending] = useState<any[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [profile, setProfile] = useState<any>(null)
+  const [profileForm, setProfileForm] = useState({ displayName: '', phone: '' })
+  const [profileMessage, setProfileMessage] = useState<string | null>(null)
+  const [profileSaving, setProfileSaving] = useState(false)
 
   const load = async () => {
     try {
@@ -21,8 +25,33 @@ export default function Staff() {
     }
   }
 
+  const loadProfile = async () => {
+    try {
+      const res = await staffApi.me()
+      setProfile(res.data.staff)
+    } catch {
+      setProfile(null)
+    }
+  }
+
+  const onUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setProfileSaving(true)
+    setProfileMessage(null)
+    try {
+      await staffApi.updateProfile({ displayName: profileForm.displayName, phone: profileForm.phone })
+      setProfileMessage('Your details have been updated.')
+      loadProfile()
+    } catch (err: any) {
+      setProfileMessage(err.response?.data?.error || 'Failed to update profile')
+    } finally {
+      setProfileSaving(false)
+    }
+  }
+
   useEffect(() => {
     load()
+    loadProfile()
   }, [])
 
   const approve = async (id: number) => {
@@ -105,6 +134,24 @@ export default function Staff() {
             </div>
             {formMessage && <p className="subtitle" style={{ color: formMessage.includes('Added') ? 'var(--success)' : 'var(--danger)' }}>{formMessage}</p>}
             <button type="submit" className="btn btn-primary">Add staff</button>
+          </form>
+        </div>
+      )}
+
+      {/* Self-service profile edit */}
+      {profile && (
+        <div className="card" style={{ marginBottom: 18 }}>
+          <h2 style={{ margin: 0 }}>Change my details</h2>
+          <p className="subtitle" style={{ margin: '8px 0 12px' }}>Update your own display name and phone number below.</p>
+          <form className="form" onSubmit={onUpdateProfile}>
+            <div className="form-grid">
+              <label>Display name</label>
+              <input type="text" value={profileForm.displayName} onChange={(e) => setProfileForm({ ...profileForm, displayName: e.target.value })} placeholder="Jane Doe" required />
+              <label>Phone</label>
+              <input type="text" value={profileForm.phone} onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })} placeholder="0712345678" />
+            </div>
+            {profileMessage && <p className="subtitle" style={{ color: profileMessage.includes('updated') ? 'var(--success)' : 'var(--danger)' }}>{profileMessage}</p>}
+            <button type="submit" className="btn btn-primary" disabled={profileSaving}>{profileSaving ? 'Saving...' : 'Save changes'}</button>
           </form>
         </div>
       )}

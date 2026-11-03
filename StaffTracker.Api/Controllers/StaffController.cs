@@ -9,7 +9,6 @@ using StaffTracker.Api.Services;
 namespace StaffTracker.Api.Controllers;
 
 [ApiController]
-[Authorize(Roles = "Admin")]
 [Route("api/[controller]")]
 public class StaffController : ControllerBase
 {
@@ -24,6 +23,7 @@ public class StaffController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<object>>> GetStaff()
     {
         var staff = await _ctx.Staffs.Include(s => s.User).ToListAsync();
@@ -41,6 +41,7 @@ public class StaffController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<object>> CreateStaff([FromBody] CreateStaffDto dto)
     {
         if (string.IsNullOrEmpty(dto.EmployeeNumber) || string.IsNullOrEmpty(dto.DisplayName))
@@ -72,6 +73,7 @@ public class StaffController : ControllerBase
     }
 
     [HttpGet("pending")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<object>>> GetPending()
     {
         var pending = await _ctx.Staffs.Where(s => s.User != null && s.User.RegistrationStatus == "Pending").ToListAsync();
@@ -79,6 +81,7 @@ public class StaffController : ControllerBase
     }
 
     [HttpPost("approve/{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> ApproveStaff(int id)
     {
         var staff = await _ctx.Staffs.Include(s => s.User).FirstOrDefaultAsync(s => s.Id == id);
@@ -87,5 +90,50 @@ public class StaffController : ControllerBase
         _ctx.Staffs.Update(staff);
         await _ctx.SaveChangesAsync();
         return Ok(new { message = "Staff approved" });
+    }
+
+    [HttpGet("me")]
+    [Authorize(Roles = "Staff")]
+    public async Task<ActionResult<object>> GetCurrentProfile()
+    {
+        var staffId = await _userService.GetCurrentStaffIdAsync();
+        if (staffId == null) return Unauthorized(new { error = "Staff profile not found" });
+        var staff = await _ctx.Staffs.FindAsync(staffId.Value);
+        if (staff == null) return NotFound(new { error = "Staff not found" });
+        return Ok(new
+        {
+            staff.Id,
+            staff.EmployeeNumber,
+            staff.DisplayName,
+            staff.Phone,
+            staff.Department,
+            staff.Status
+        });
+    }
+
+    [HttpPost("me")]
+    [Authorize(Roles = "Staff")]
+    public async Task<ActionResult<object>> UpdateProfile([FromBody] UpdateProfileDto dto)
+    {
+        var staffId = await _userService.GetCurrentStaffIdAsync();
+        if (staffId == null) return Unauthorized(new { error = "Staff profile not found" });
+        var staff = await _ctx.Staffs.FindAsync(staffId.Value);
+        if (staff == null) return NotFound(new { error = "Staff not found" });
+        if (!string.IsNullOrEmpty(dto.DisplayName)) staff.DisplayName = dto.DisplayName;
+        if (!string.IsNullOrEmpty(dto.Phone)) staff.Phone = dto.Phone;
+        await _ctx.SaveChangesAsync();
+        return Ok(new
+        {
+            message = "Profile updated",
+            staff = new
+            {
+                staff.Id,
+                staff.EmployeeNumber,
+                staff.DisplayName,
+                staff.Phone,
+                staff.Department,
+                staff.Status
+            }
+        });
     }
 }

@@ -75,6 +75,9 @@ export const staffApi = {
     api.post('/api/Staff', data),
   approve: (id: number) => api.post(`/api/Staff/approve/${id}`),
   pending: () => api.get<Staff[]>('/api/Staff/pending'),
+  me: () => api.get<any>('/api/Staff/me'),
+  updateProfile: (data: { displayName: string; phone: string }) =>
+    api.post('/api/Staff/me', data),
 }
 
 export const locationApi = {

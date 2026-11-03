@@ -47,3 +47,9 @@ public class CheckInDto
     public string? Lat { get; set; }
     public string? Lng { get; set; }
 }
+
+public class UpdateProfileDto
+{
+    public string? DisplayName { get; set; }
+    public string? Phone { get; set; }
+}
