@@ -10,6 +10,16 @@ export default function Self() {
   const [saving, setSaving] = useState(false)
   const [locating, setLocating] = useState(false)
   const [locationError, setLocationError] = useState<string | null>(null)
+  const [myPosition, setMyPosition] = useState<{ lat?: string; lng?: string } | null>(null)
+  const [geofenceStatus, setGeofenceStatus] = useState<'unknown' | 'within' | 'outside'>('unknown')
+  const [geofenceDistance, setGeofenceDistance] = useState<number | null>(null)
+
+  const haversineMeters = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+    const R = 6371000
+    const dLat = (lat2 - lat1) * Math.PI / 180
+    const dLng = (lng2 - lng1) * Math.PI / 180 * Math.cos(lat1 * Math.PI / 180)
+    return Math.sqrt(dLat * dLat + dLng * dLng) * R
+  }
 
   const load = async () => {
     try {
@@ -71,6 +81,9 @@ export default function Self() {
     }
     setLocating(true)
     setLocationError(null)
+    setMyPosition(null)
+    setGeofenceStatus('unknown')
+    setGeofenceDistance(null)
     try {
       const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -78,10 +91,15 @@ export default function Self() {
           timeout: 8000,
         })
       })
-      await checkInApi.checkIn(
-        pos.coords.latitude.toString(),
-        pos.coords.longitude.toString()
-      )
+      const currentLat = pos.coords.latitude
+      const currentLng = pos.coords.longitude
+      setMyPosition({ lat: currentLat.toString(), lng: currentLng.toString() })
+      if (assignment.locationLatitude != null && assignment.locationLongitude != null) {
+        const distance = haversineMeters(currentLat, currentLng, assignment.locationLatitude, assignment.locationLongitude)
+        setGeofenceDistance(Math.round(distance))
+        setGeofenceStatus(distance <= 500 ? 'within' : 'outside')
+      }
+      await checkInApi.checkIn(currentLat.toString(), currentLng.toString())
       load()
     } catch (err: any) {
       setLocationError(err.message || 'Could not get your location.')
@@ -150,6 +168,25 @@ export default function Self() {
           >
             {locating ? 'Locating...' : 'Use my position'}
           </button>
+          {myPosition && (
+            <div className="subtitle" style={{ marginTop: 6 }}>
+              Your position: Lat {Number(myPosition.lat).toFixed(5)}, Lng {Number(myPosition.lng).toFixed(5)}
+            </div>
+          )}
+          {assignment.locationLatitude != null && (
+            <div className="subtitle" style={{ marginTop: 6 }}>
+              {assignment.locationName}'s location: Lat {Number(assignment.locationLatitude).toFixed(5)}, Lng {Number(assignment.locationLongitude).toFixed(5)}
+            </div>
+          )}
+          {geofenceStatus !== 'unknown' && geofenceDistance !== null && (
+            <div className={`geofence ${geofenceStatus === 'within' ? 'geofence-within' : 'geofence-outside'}`}>
+              <span className="geofence-dot" />
+              <span className="geofence-strap">
+                {geofenceStatus === 'within' ? 'You are within the location area' : 'You are outside the location area'}
+              </span>
+              <span className="geofence-cord">~{geofenceDistance} m from location</span>
+            </div>
+          )}
           {locationError && <p className="error" style={{ marginTop: 8 }}>{locationError}</p>}
           {error && <p className="error" style={{ marginTop: 8 }}>{error}</p>}
           <p className="subtitle" style={{ marginTop: 6 }}>

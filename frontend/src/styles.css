@@ -146,6 +146,42 @@ td.num, th.num { text-align: right; }
 .pill-reached { background: var(--success-light); color: var(--success); }
 .pill-notreached { background: var(--danger-light); color: var(--danger); }
 
+/* Geofence status (check-in location validation) */
+.geofence {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  line-height: 1.4;
+  margin-top: 10px;
+}
+.geofence .geofence-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.geofence-within {
+  background: var(--success-light);
+  border: 1px solid var(--success-light);
+}
+.geofence-within .geofence-dot { background: var(--success); }
+.geofence-outside {
+  background: var(--danger-light);
+  border: 1px solid var(--danger-light);
+}
+.geofence-outside .geofence-dot { background: var(--danger); }
+.geofence .geofence-strap {
+  flex: 1;
+  color: var(--text);
+}
+.geofence .geofence-cord {
+  font-size: 12px;
+  color: var(--text-alt);
+}
+
 /* Auth splash */
 .auth-splash {
   display: flex; align-items: center; justify-content: center;

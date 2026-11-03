@@ -36,6 +36,7 @@ public class AssignmentController : ControllerBase
         {
             a.Id, a.StaffId, staffDisplayName = a.Staff?.DisplayName, staffEmployeeNumber = a.Staff?.EmployeeNumber,
             a.LocationId, locationName = a.Location?.Name, locationAddress = a.Location?.Address,
+            locationLatitude = a.Location?.Latitude, locationLongitude = a.Location?.Longitude,
             a.Status, a.Note, a.CheckedInAt, a.CheckedOutAt
         }) });
     }
