@@ -116,6 +116,7 @@ th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--bo
 th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-alt); background: #f8fafc; }
 tr:last-child td { border-bottom: none; }
 td.num, th.num { text-align: right; }
+td.coord { white-space: nowrap; color: var(--text-alt); font-size: 13px; }
 
 /* Badges */
 .badge {

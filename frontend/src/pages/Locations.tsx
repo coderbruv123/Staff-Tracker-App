@@ -85,13 +85,18 @@ export default function Locations() {
           <div className="table-wrap">
             <table>
               <thead>
-                <tr><th>Name</th><th>Address</th><th>Notes</th></tr>
+                <tr><th>Name</th><th>Address</th><th>Coordinates</th><th>Notes</th></tr>
               </thead>
               <tbody>
                 {locations.map((l) => (
                   <tr key={l.id}>
                     <td><strong>{l.name}</strong></td>
                     <td>{l.address}</td>
+                    <td className="coord">
+                      {l.latitude != null && l.longitude != null
+                        ? `Lat ${Number(l.latitude).toFixed(5)}, Lng ${Number(l.longitude).toFixed(5)}`
+                        : '—'}
+                    </td>
                     <td>{l.notes}</td>
                   </tr>
                 ))}

@@ -24,7 +24,7 @@ public class LocationController : ControllerBase
     public async Task<ActionResult<IEnumerable<object>>> GetLocations()
     {
         var locations = await _ctx.Locations.Where(l => l.IsActive).ToListAsync();
-        return Ok(locations.Select(l => new { l.Id, l.Name, l.Address, l.Notes }));
+        return Ok(locations.Select(l => new { l.Id, l.Name, l.Address, l.Notes, l.Latitude, l.Longitude }));
     }
 
     [HttpPost]
