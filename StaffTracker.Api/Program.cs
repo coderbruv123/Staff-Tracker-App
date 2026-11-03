@@ -31,9 +31,13 @@ builder.Services.AddSignalR();
 // ---- CORS ----
 builder.Services.AddCors(options =>
 {
+    // The frontend dev server lives at http://localhost:5173. The proxy there
+    // forwards /api -> the backend, but the browser still treats /api calls as
+    // same-origin; still, allowCredentials must name the origin explicitly
+    // (never '*') so cookies are honored.
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins("http://localhost:5173").AllowCredentials().AllowAnyHeader().AllowAnyMethod();
     });
 });
 

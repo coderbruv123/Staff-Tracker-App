@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../store/AuthContext'
+import { useLiveUpdates } from '../hooks/useLiveUpdates'
 import { assignmentApi, locationApi, staffApi } from '../api/client'
 import type { DailyAssignment, Location, Staff } from '../api/client'
 
@@ -24,6 +25,9 @@ export default function Dashboard() {
       setError(err.response?.data?.error || 'Failed to load assignments')
     }
   }
+
+  // Live updates from the status hub (admins) — refreshed when staff change status.
+  useLiveUpdates(() => fetchAssignments())
 
   const fetchOptions = async () => {
     try {

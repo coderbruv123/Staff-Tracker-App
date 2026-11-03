@@ -24,6 +24,15 @@ public class AssignmentService : IAssignmentService
     public async Task<DailyAssignment?> GetAssignmentAsync(int id) =>
         await _ctx.DailyAssignments.Include(a => a.Staff).Include(a => a.Location).FirstOrDefaultAsync(a => a.Id == id);
 
+    public async Task<DailyAssignment?> GetTodayAssignmentAsync(int staffId)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        return await _ctx.DailyAssignments
+            .Include(a => a.Staff)
+            .Include(a => a.Location)
+            .FirstOrDefaultAsync(a => a.StaffId == staffId && a.Date == today);
+    }
+
     public async Task<DailyAssignment> CreateAssignmentAsync(int staffId, int locationId, DateOnly date)
     {
         var a = new DailyAssignment { StaffId = staffId, LocationId = locationId, Date = date, Status = "Pending" };

@@ -30,9 +30,17 @@ public class CheckInController : ControllerBase
         var staffId = await _userService.GetCurrentStaffIdAsync();
         if (staffId == null) return Unauthorized(new { error = "Staff profile not found" });
 
-        var assignment = await _assignmentService.GetAssignmentAsync(staffId.Value);
+        var assignment = await _assignmentService.GetTodayAssignmentAsync(staffId.Value);
         if (assignment == null) return NotFound(new { error = "No assignment found for today" });
-        if (assignment.Status == "Reached") assignment.Status = "InProgress";
+
+        // Promote the staff into progress on first check-in (Pending / NotReached),
+        // and re-open a Reached assignment back into InProgress.
+        if (assignment.Status == "Reached" ||
+            assignment.Status == "Pending" ||
+            assignment.Status == "NotReached")
+        {
+            assignment.Status = "InProgress";
+        }
 
         var log = await _checkInService.CheckInAsync(assignment.Id, dto.Lat, dto.Lng);
         await BroadcastUpdateAsync();

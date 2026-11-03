@@ -33,6 +33,8 @@ function App() {
         <Route path="/admin/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
         <Route path="/self" element={<ProtectedRoute><Self /></ProtectedRoute>} />
         <Route path="/" element={<Navigate to={useAuth().isAdmin ? '/admin/dashboard' : '/self'} replace />} />
+        <Route path="/assignments" element={<ProtectedRoute><Self /></ProtectedRoute>} />
+        <Route path="/checkins" element={<ProtectedRoute><Self /></ProtectedRoute>} />
       </Route>
     </Routes>
   )

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../store/AuthContext'
-import { assignmentApi, checkInApi } from '../api/client'
+import { assignmentApi, checkInApi, apiAuth } from '../api/client'
 
 export default function Self() {
   const { isStaff } = useAuth()
@@ -11,10 +11,15 @@ export default function Self() {
 
   const load = async () => {
     try {
+      const meRes = await apiAuth.me()
+      const currentStaffId = meRes.data?.id
       const res = await assignmentApi.today()
-      const assign = res.data?.assignments?.find((a: any) => a.staffId === null || a.staffId === null) || res.data?.assignments?.[0]
+      const assignments = res.data?.assignments || []
+      const assign = assignments.find((a: any) => a.staffId === currentStaffId) ?? assignments[0]
       setAssignment(assign)
       setLogs([])
+      const logsRes = await checkInApi.getLogs()
+      setLogs((logsRes.data?.assignments ?? []).flatMap((a: any) => a.logs ?? []))
       setError(null)
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load your assignment')
@@ -124,10 +129,10 @@ export default function Self() {
             <tbody>
               {logs.slice().reverse().map((l: any) => (
                 <tr key={l.id}>
-                  <td>{new Date(l.timestamp).toLocaleString()}</td>
-                  <td>{l.eventType}</td>
-                  <td className="num">{l.lat ?? ''}</td>
-                  <td className="num">{l.lng ?? ''}</td>
+                  <td>{new Date(l.Timestamp).toLocaleString()}</td>
+                  <td>{l.EventType}</td>
+                  <td className="num">{l.Lat ?? ''}</td>
+                  <td className="num">{l.Lng ?? ''}</td>
                 </tr>
               ))}
               {logs.length === 0 && <tr><td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-alt)' }}>No activity yet.</td></tr>}

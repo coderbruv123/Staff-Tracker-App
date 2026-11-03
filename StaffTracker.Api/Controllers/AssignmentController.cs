@@ -34,8 +34,8 @@ public class AssignmentController : ControllerBase
         var list = await _assignmentService.GetTodayAssignmentsAsync(staffId?.ToString());
         return Ok(new { date = DateOnly.FromDateTime(DateTime.Today), assignments = list.Select(a => new
         {
-            a.Id, a.StaffId, a.Staff?.DisplayName, a.Staff?.EmployeeNumber,
-            a.LocationId, a.Location?.Name, a.Location?.Address,
+            a.Id, a.StaffId, staffDisplayName = a.Staff?.DisplayName, staffEmployeeNumber = a.Staff?.EmployeeNumber,
+            a.LocationId, locationName = a.Location?.Name, locationAddress = a.Location?.Address,
             a.Status, a.Note, a.CheckedInAt, a.CheckedOutAt
         }) });
     }
@@ -46,12 +46,16 @@ public class AssignmentController : ControllerBase
     {
         var day = string.IsNullOrEmpty(date) ? DateOnly.FromDateTime(DateTime.Today) : DateOnly.Parse(date);
         var list = await _assignmentService.GetTodayAssignmentsAsync(null);
+        var counts = list.GroupBy(a => a.Status).ToDictionary(g => g.Key, g => g.Count());
         return Ok(new { date = day, assignments = list.Select(a => new
         {
-            a.Id, a.StaffId, a.Staff?.DisplayName, a.Staff?.EmployeeNumber,
-            a.LocationId, a.Location?.Name, a.Location?.Address,
+            a.Id, a.StaffId, staffDisplayName = a.Staff?.DisplayName, staffEmployeeNumber = a.Staff?.EmployeeNumber,
+            a.LocationId, locationName = a.Location?.Name, locationAddress = a.Location?.Address,
             a.Status, a.Note, a.CheckedInAt, a.CheckedOutAt
-        }) });
+        }), total = list.Count, reached = counts.GetValueOrDefault("Reached", 0),
+        inProgress = counts.GetValueOrDefault("InProgress", 0),
+        pending = counts.GetValueOrDefault("Pending", 0),
+        notReached = counts.GetValueOrDefault("NotReached", 0) });
     }
 
     [HttpPost]

@@ -6,6 +6,8 @@ namespace StaffTracker.Api.Services;
 public interface IAssignmentService
 {
     Task<List<DailyAssignment>> GetTodayAssignmentsAsync(string? staffId = null);
+    Task<DailyAssignment?> GetTodayAssignmentAsync(int staffId);
+
     Task<DailyAssignment?> GetAssignmentAsync(int id);
     Task<DailyAssignment> CreateAssignmentAsync(int staffId, int locationId, DateOnly date);
     Task<DailyAssignment> UpdateStatusAsync(int id, string status, string? note = null);

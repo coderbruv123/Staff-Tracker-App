@@ -2,7 +2,7 @@
 import axios from 'axios'
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: '/',
   withCredentials: true, // cookie-based auth (ASP.NET Core Identity)
 })
 
@@ -78,24 +78,24 @@ export const staffApi = {
 }
 
 export const locationApi = {
-  list: () => api.get<Location[]>('/locations'),
+  list: () => api.get<Location[]>('/api/locations'),
   add: (data: { name: string; address: string; notes: string }) =>
-    api.post('/locations', data),
+    api.post('/api/locations', data),
 }
 
 export const assignmentApi = {
-  today: () => api.get<DashboardSummary>('/assignments/today'),
-  list: (date?: string) => api.get<DashboardSummary>(`/assignments?date=${date}`),
+  today: () => api.get<DashboardSummary>('/api/assignments/today'),
+  list: (date?: string) => api.get<DashboardSummary>(`/api/assignments?date=${date}`),
   create: (data: { staffId: number; locationId: number }) =>
-    api.post('/assignments', data),
+    api.post('/api/assignments', data),
   updateStatus: (id: number, status: string, note?: string) =>
-    api.patch(`/assignments/${id}/status`, { status, note }),
-  history: (staffId: number) => api.get<DashboardSummary>(`/assignments/history/${staffId}`),
+    api.patch(`/api/assignments/${id}/status`, { status, note }),
+  history: (staffId: number) => api.get<DashboardSummary>(`/api/assignments/history/${staffId}`),
 }
 
 export const checkInApi = {
   checkIn: (lat?: string, lng?: string) =>
-    api.post('/checkins', { lat, lng }),
-  checkOut: (id: number) => api.post(`/checkins/${id}/checkout`),
-  getLogs: () => api.get('/checkins'),
+    api.post('/api/checkins', { lat, lng }),
+  checkOut: (id: number) => api.post(`/api/checkins/${id}/checkout`),
+  getLogs: () => api.get('/api/checkins'),
 }
