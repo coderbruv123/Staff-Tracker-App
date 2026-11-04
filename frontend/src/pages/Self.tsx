@@ -197,9 +197,9 @@ export default function Self() {
           <p className="subtitle" style={{ marginTop: 6 }}>
             {assignment.checkedInAt
               ? (() => {
-                  const last = logs.slice().reverse().find((l: any) => l.Lat != null || l.Lng != null)
-                  if (!last?.Lat && last?.Lng == null) return 'Last recorded position: none'
-                  return `Last recorded position: Lat ${Number(last.Lat).toFixed(5)}, Lng ${Number(last.Lng).toFixed(5)}`
+                  const last = logs.slice().reverse().find((l: any) => l.lat != null || l.lng != null)
+                  if (!last?.lat && last?.lng == null) return 'Last recorded position: none'
+                  return `Last recorded position: Lat ${Number(last.lat).toFixed(5)}, Lng ${Number(last.lng).toFixed(5)}`
                 })()
               : ''}
           </p>
@@ -217,10 +217,10 @@ export default function Self() {
             <tbody>
               {logs.slice().reverse().map((l: any) => (
                 <tr key={l.id}>
-                  <td>{(() => { const d = new Date(l.Timestamp); return isNaN(d.getTime()) ? '—' : d.toLocaleString(); })()}</td>
-                  <td>{l.EventType ?? ''}</td>
-                  <td className="num">{l.Lat ?? ''}</td>
-                  <td className="num">{l.Lng ?? ''}</td>
+                  <td>{(() => { const d = new Date(l.timestamp); return isNaN(d.getTime()) ? '—' : d.toLocaleString(); })()}</td>
+                  <td>{l.eventType ?? ''}</td>
+                  <td className="num">{l.lat ?? ''}</td>
+                  <td className="num">{l.lng ?? ''}</td>
                 </tr>
               ))}
               {logs.length === 0 && <tr><td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-alt)' }}>No activity yet.</td></tr>}
