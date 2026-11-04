@@ -35,6 +35,13 @@ export default function History() {
     loadHistory(id)
   }
 
+  // Format date as "Mon, Nov 4, 2026"
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr + 'T00:00:00')
+    if (isNaN(d.getTime())) return dateStr || '—'
+    return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+  }
+
   return (
     <div>
       <div className="page-head">
@@ -64,19 +71,19 @@ export default function History() {
           <p className="subtitle">No history yet. Create assignments and change status in the dashboard to see history here.</p>
         ) : (
           <div className="table-wrap">
-            <table>
+            <table className="history-table">
               <thead>
                 <tr><th>Date</th><th>Status</th><th>Location</th><th>Note</th></tr>
               </thead>
               <tbody>
                 {assignments.map((a: any) => (
                   <tr key={a.id}>
-                    <td>{new Date(a.date).toLocaleDateString()}</td>
+                    <td>{formatDate(a.date)}</td>
                     <td>
                       <span className={`pill ${a.status === 'Reached' ? 'pill-reached' : a.status === 'InProgress' ? 'pill-inprogress' : a.status === 'NotReached' ? 'pill-notreached' : 'pill-pending'}`}>{a.status}</span>
                     </td>
                     <td>{a.location}</td>
-                    <td>{a.note}</td>
+                    <td>{a.note || '—'}</td>
                   </tr>
                 ))}
               </tbody>
