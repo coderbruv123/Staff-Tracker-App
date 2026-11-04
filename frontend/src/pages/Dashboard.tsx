@@ -79,6 +79,13 @@ export default function Dashboard() {
     return 'pill-pending'
   }
 
+  // Visual progress bar widths
+  const total = summary?.total ?? 0
+  const reachedPct = total > 0 ? (summary?.reached ?? 0) / total : 0
+  const inProgressPct = total > 0 ? (summary?.inProgress ?? 0) / total : 0
+  const pendingPct = total > 0 ? (summary?.pending ?? 0) / total : 0
+  const notReachedPct = total > 0 ? (summary?.notReached ?? 0) / total : 0
+
   return (
     <div>
       <div className="page-head">
@@ -93,6 +100,39 @@ export default function Dashboard() {
           <div className="stat"><div className="num" style={{ color: 'var(--text-alt)' }}>{summary?.pending ?? 0}</div><span className="pill pill-pending">Pending</span></div>
           <div className="stat"><div className="num" style={{ color: 'var(--danger)' }}>{summary?.notReached ?? 0}</div><span className="pill pill-notreached">Not Reached</span></div>
         </div>
+      </div>
+
+      <div className="card">
+        <div className="page-head">
+          <h2 style={{ margin: 0 }}>Status overview</h2>
+          <p className="subtitle" style={{ margin: '8px 0 12px' }}>Live distribution of today&apos;s assignments.</p>
+        </div>
+
+        {/* Visual progress bars for each status bucket */}
+        <div className="status-pills" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
+          <div className="status-pill">
+            <div className="status-pill-label">Reached</div>
+            <div className="status-pill-bar"><div className="status-pill-fill pill-reached" style={{ width: reachedPct * 100 + '%' }}></div></div>
+            <div className="status-pill-count">{summary?.reached ?? 0}</div>
+          </div>
+          <div className="status-pill">
+            <div className="status-pill-label">In Progress</div>
+            <div className="status-pill-bar"><div className="status-pill-fill pill-inprogress" style={{ width: inProgressPct * 100 + '%' }}></div></div>
+            <div className="status-pill-count">{summary?.inProgress ?? 0}</div>
+          </div>
+          <div className="status-pill">
+            <div className="status-pill-label">Pending</div>
+            <div className="status-pill-bar"><div className="status-pill-fill pill-pending" style={{ width: pendingPct * 100 + '%' }}></div></div>
+            <div className="status-pill-count">{summary?.pending ?? 0}</div>
+          </div>
+          <div className="status-pill">
+            <div className="status-pill-label">Not Reached</div>
+            <div className="status-pill-bar"><div className="status-pill-fill pill-notreached" style={{ width: notReachedPct * 100 + '%' }}></div></div>
+            <div className="status-pill-count">{summary?.notReached ?? 0}</div>
+          </div>
+        </div>
+
+        <div className="stat"><div className="num">{summary?.total ?? 0}</div><span>Total</span></div>
       </div>
 
       <div className="card">

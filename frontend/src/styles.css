@@ -146,6 +146,48 @@ td.coord { white-space: nowrap; color: var(--text-alt); font-size: 13px; }
 .pill-inprogress { background: var(--info-light); color: var(--info); }
 .pill-reached { background: var(--success-light); color: var(--success); }
 .pill-notreached { background: var(--danger-light); color: var(--danger); }
+/* Status overview — visual progress bars per status bucket */
+.status-pills {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+.status-pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.status-pill-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-alt);
+}
+.status-pill-bar {
+  margin-top: 8px;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.status-pill-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+.pill-reached .status-pill-fill { background: var(--success); }
+.pill-inprogress .status-pill-fill { background: var(--info); }
+.pill-pending .status-pill-fill { background: var(--text-alt); }
+.pill-notreached .status-pill-fill { background: var(--danger); }
+.status-pill-count {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+}
+.pill-notreached { background: var(--danger-light); color: var(--danger); }
 
 /* Geofence status (check-in location validation) */
 .geofence {
