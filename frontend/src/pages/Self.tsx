@@ -127,7 +127,12 @@ export default function Self() {
 
       <div className="card">
         <div className="card-grid">
-          <div className="stat"><div className="num" style={{ color: 'var(--success)' }}>{assignment.status === 'Reached' ? 'Reached' : 'Pending'}</div><span>Status</span></div>
+          <div className="stat">
+            <div className={`num ${assignment.status === 'Reached' ? 'text-success' : assignment.status === 'InProgress' ? 'text-info' : assignment.status === 'NotReached' ? 'text-danger' : ''}`}>
+              {assignment.status}
+            </div>
+            <span>Status</span>
+          </div>
           <div className="stat"><div className="num" style={{ color: 'var(--text-alt)' }}>{assignment.checkedInAt ? new Date(assignment.checkedInAt).toLocaleString() : 'Not yet'}</div><span>Checked in</span></div>
         </div>
 
@@ -212,8 +217,8 @@ export default function Self() {
             <tbody>
               {logs.slice().reverse().map((l: any) => (
                 <tr key={l.id}>
-                  <td>{new Date(l.Timestamp).toLocaleString()}</td>
-                  <td>{l.EventType}</td>
+                  <td>{new Date(l.Timestamp?.toString()).toLocaleString() || '—'}</td>
+                  <td>{l.EventType ?? ''}</td>
                   <td className="num">{l.Lat ?? ''}</td>
                   <td className="num">{l.Lng ?? ''}</td>
                 </tr>

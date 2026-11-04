@@ -60,6 +60,8 @@ public class CheckInService : ICheckInService
         var a = await _ctx.DailyAssignments.Include(a => a.Logs).FirstOrDefaultAsync(a => a.Id == assignmentId);
         if (a == null) throw new Exception("Assignment not found");
         a.CheckedOutAt = DateTime.Now;
+        a.Status = "Pending";
+        a.CheckedInAt = null;
         var log = new CheckInLog { AssignmentId = a.Id, Timestamp = DateTime.Now, EventType = "CheckOut" };
         a.Logs.Add(log);
         _ctx.DailyAssignments.Update(a);
