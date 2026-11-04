@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 dev.log
+
+# Dogfood QA output
+dogfood-output/
