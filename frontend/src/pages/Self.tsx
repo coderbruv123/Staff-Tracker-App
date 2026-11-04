@@ -217,7 +217,7 @@ export default function Self() {
             <tbody>
               {logs.slice().reverse().map((l: any) => (
                 <tr key={l.id}>
-                  <td>{new Date(l.Timestamp?.toString()).toLocaleString() || '—'}</td>
+                  <td>{(() => { const d = new Date(l.Timestamp); return isNaN(d.getTime()) ? '—' : d.toLocaleString(); })()}</td>
                   <td>{l.EventType ?? ''}</td>
                   <td className="num">{l.Lat ?? ''}</td>
                   <td className="num">{l.Lng ?? ''}</td>
