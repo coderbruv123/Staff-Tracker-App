@@ -25,6 +25,7 @@ public class AssignmentController : ControllerBase
     }
 
     [HttpGet("today")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<object>> GetToday()
     {
         int? staffId = null;
