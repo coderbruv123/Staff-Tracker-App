@@ -75,7 +75,6 @@ export default function Sidebar() {
             <button
               className="logout-btn"
               onClick={handleLogout}
-              style={{ display: 'none' }}
             >
               Logout
             </button>

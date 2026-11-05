@@ -215,6 +215,13 @@ body {
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s ease;
+  margin-top: 4px;
+}
+
+.logout-btn:hover {
+  background: var(--surface-2);
+  color: var(--danger);
+  border-color: var(--danger-light);
 }
 
 .logout-btn:hover { background: var(--surface-2); color: var(--danger); }
