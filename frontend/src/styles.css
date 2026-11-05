@@ -224,8 +224,6 @@ body {
   border-color: var(--danger-light);
 }
 
-.logout-btn:hover { background: var(--surface-2); color: var(--danger); }
-
 /* ===== Main Content ===== */
 .main {
   flex: 1;
