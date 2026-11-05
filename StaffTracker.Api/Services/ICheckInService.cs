@@ -25,7 +25,9 @@ public class CheckInService : ICheckInService
             .Include(a => a.Logs)
             .FirstOrDefaultAsync(a => a.Id == assignmentId);
         if (a == null) throw new Exception("Assignment not found");
-        if (a.Status == "Reached")
+        // Promote the staff into progress on first check-in (Pending / NotReached),
+        // and re-open a Reached assignment back into InProgress.
+        if (a.Status == "Reached" || a.Status == "Pending" || a.Status == "NotReached")
         {
             a.Status = "InProgress";
             a.CheckedInAt = DateTime.Now;

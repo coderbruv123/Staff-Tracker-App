@@ -35,12 +35,7 @@ public class CheckInController : ControllerBase
 
         // Promote the staff into progress on first check-in (Pending / NotReached),
         // and re-open a Reached assignment back into InProgress.
-        if (assignment.Status == "Reached" ||
-            assignment.Status == "Pending" ||
-            assignment.Status == "NotReached")
-        {
-            assignment.Status = "InProgress";
-        }
+        await _assignmentService.UpdateStatusAsync(assignment.Id, "InProgress");
 
         try
         {
