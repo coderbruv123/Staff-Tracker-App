@@ -58,6 +58,7 @@ export default function Dashboard() {
     e.preventDefault()
     if (!formStaff || !formLocation) return
     setSaving(true)
+    setError(null)
     try {
       await assignmentApi.create({ staffId: formStaff, locationId: formLocation })
       setSummary(null)
@@ -72,13 +73,6 @@ export default function Dashboard() {
     }
   }
 
-  const statusClass = (s: string) => {
-    if (s === 'Reached') return 'pill-reached'
-    if (s === 'InProgress') return 'pill-inprogress'
-    if (s === 'NotReached') return 'pill-notreached'
-    return 'pill-pending'
-  }
-
   // Visual progress bar widths
   const total = summary?.total ?? 0
   const reachedPct = total > 0 ? (summary?.reached ?? 0) / total : 0
@@ -88,80 +82,115 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div className="page-head">
-        <div>
-          <h1>Dashboard</h1>
-          <p className="subtitle">Live status across the site &mdash; {summary?.date || ''}</p>
-        </div>
-        <div className="card card-grid">
-          <div className="stat"><div className="num">{summary?.total ?? 0}</div><span>Total</span></div>
-          <div className="stat"><div className="num" style={{ color: 'var(--success)' }}>{summary?.reached ?? 0}</div><span className="pill pill-reached">Reached</span></div>
-          <div className="stat"><div className="num" style={{ color: 'var(--info)' }}>{summary?.inProgress ?? 0}</div><span className="pill pill-inprogress">In Progress</span></div>
-          <div className="stat"><div className="num" style={{ color: 'var(--text-alt)' }}>{summary?.pending ?? 0}</div><span className="pill pill-pending">Pending</span></div>
-          <div className="stat"><div className="num" style={{ color: 'var(--danger)' }}>{summary?.notReached ?? 0}</div><span className="pill pill-notreached">Not Reached</span></div>
+      <div className="topbar">
+        <button className="topbar-back">←</button>
+        <h1 className="topbar-title">Dashboard</h1>
+        <div className="topbar-actions">
+          <div className="search-box">
+            <span style={{ color: 'var(--text-muted)', fontSize: '16px' }}>🔍</span>
+            <input type="text" placeholder="Search assignments, staff, locations..." />
+          </div>
+          <div className="avatar-stack">
+            <span className="active-avatar">A</span>
+          </div>
         </div>
       </div>
 
-      <div className="card">
-        <div className="page-head">
-          <h2 style={{ margin: 0 }}>Status overview</h2>
-          <p className="subtitle" style={{ margin: '8px 0 12px' }}>Live distribution of today&apos;s assignments.</p>
+      <div className="content">
+        {error && <p style={{ marginBottom: 16, backgroundColor: 'var(--danger-light)', color: 'var(--danger)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--danger-light)' }}>{error}</p>}
+
+        {/* Stats Cards */}
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="label">Total Assignments</div>
+            <div className="num">{summary?.total ?? 0}</div>
+            <div className="subtitle">For today, Nov 5</div>
+          </div>
+          <div className="stat-card">
+            <div className="label">Reached</div>
+            <div className="num reached">{summary?.reached ?? 0}</div>
+            <div className="subtitle">Status: Reached</div>
+          </div>
+          <div className="stat-card">
+            <div className="label">In Progress</div>
+            <div className="num inprogress">{summary?.inProgress ?? 0}</div>
+            <div className="subtitle">Currently on site</div>
+          </div>
+          <div className="stat-card">
+            <div className="label">Pending</div>
+            <div className="num pending">{summary?.pending ?? 0}</div>
+            <div className="subtitle">Not yet checked in</div>
+          </div>
+          <div className="stat-card">
+            <div className="label">Not Reached</div>
+            <div className="num notreached">{summary?.notReached ?? 0}</div>
+            <div className="subtitle">Outside geofence</div>
+          </div>
         </div>
 
-        {/* Visual progress bars for each status bucket */}
-        <div className="status-pills" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
+        {/* Status Pills */}
+        <div className="status-pills">
           <div className="status-pill">
-            <div className="status-pill-label">Reached</div>
-            <div className="status-pill-bar"><div className="status-pill-fill pill-reached" style={{ width: reachedPct * 100 + '%' }}></div></div>
-            <div className="status-pill-count">{summary?.reached ?? 0}</div>
+            <div className="label">Reached</div>
+            <div className="bar"><div className="fill reached" style={{ width: reachedPct * 100 + '%' }}></div></div>
+            <div className="count">{summary?.reached ?? 0}</div>
           </div>
           <div className="status-pill">
-            <div className="status-pill-label">In Progress</div>
-            <div className="status-pill-bar"><div className="status-pill-fill pill-inprogress" style={{ width: inProgressPct * 100 + '%' }}></div></div>
-            <div className="status-pill-count">{summary?.inProgress ?? 0}</div>
+            <div className="label">In Progress</div>
+            <div className="bar"><div className="fill inprogress" style={{ width: inProgressPct * 100 + '%' }}></div></div>
+            <div className="count">{summary?.inProgress ?? 0}</div>
           </div>
           <div className="status-pill">
-            <div className="status-pill-label">Pending</div>
-            <div className="status-pill-bar"><div className="status-pill-fill pill-pending" style={{ width: pendingPct * 100 + '%' }}></div></div>
-            <div className="status-pill-count">{summary?.pending ?? 0}</div>
+            <div className="label">Pending</div>
+            <div className="bar"><div className="fill pending" style={{ width: pendingPct * 100 + '%' }}></div></div>
+            <div className="count">{summary?.pending ?? 0}</div>
           </div>
           <div className="status-pill">
-            <div className="status-pill-label">Not Reached</div>
-            <div className="status-pill-bar"><div className="status-pill-fill pill-notreached" style={{ width: notReachedPct * 100 + '%' }}></div></div>
-            <div className="status-pill-count">{summary?.notReached ?? 0}</div>
+            <div className="label">Not Reached</div>
+            <div className="bar"><div className="fill Notreached" style={{ width: notReachedPct * 100 + '%' }}></div></div>
+            <div className="count">{summary?.notReached ?? 0}</div>
           </div>
         </div>
 
-        <div className="stat"><div className="num">{summary?.total ?? 0}</div><span>Total</span></div>
-      </div>
-
-      <div className="card">
-        <div className="page-head">
-          <h2 style={{ margin: 0 }}>Today&apos;s assignments</h2>
-          <div className="form-grid" style={{ gap: 10 }}>
-            <label>Date</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-            <button className="btn btn-primary" onClick={() => { fetchAssignments(); fetchOptions() }}>Refresh</button>
-          </div>
-        </div>
-        {error && <p className="error" style={{ marginTop: 8 }}>{error}</p>}
-        <div className="table-wrap">
+        {/* Today's Assignments Table */}
+        <div className="table-container">
           <table>
             <thead>
-              <tr><th>Staff</th><th>Location</th><th>Status</th><th>Last Updated</th><th>Action</th></tr>
+              <tr>
+                <th>Staff</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Checked In</th>
+                <th>Action</th>
+              </tr>
             </thead>
             <tbody>
               {assignments.map((a) => (
                 <tr key={a.id}>
-                  <td><strong>{a.staffDisplayName}</strong> <span className="num" style={{ fontSize: 12, color: 'var(--text-alt)' }}>{a.staffEmployeeNumber}</span></td>
+                  <td>
+                    <strong>{a.staffDisplayName}</strong><br></br>
+                    <span className="badge-staff-number">{a.staffEmployeeNumber}</span>
+                  </td>
                   <td>{a.locationName}</td>
-                  <td><span className={`pill ${statusClass(a.status)}`}>{a.status}</span></td>
-                  <td>{a.checkedInAt ? new Date(a.checkedInAt).toLocaleString() : ''}</td>
+                  <td>
+                    <span className={`status-badge ${
+                      a.status === 'Reached' ? 'badge-reached' :
+                      a.status === 'InProgress' ? 'badge-inprogress' :
+                      a.status === 'NotReached' ? 'badge-notreached' :
+                      'badge-pending'
+                    }`}>
+                      {a.status}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="badge-date">
+                      {a.checkedInAt ? new Date(a.checkedInAt).toLocaleString() : '—'}
+                    </span>
+                  </td>
                   <td>
                     {(isAdmin || a.staffId === 0) && (
                       <select
-                        className="pill"
-                        style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border)' }}
+                        className="action-select"
                         value={a.status}
                         onChange={(e) => updateStatus(a.id, e.target.value)}
                       >
@@ -174,38 +203,45 @@ export default function Dashboard() {
                   </td>
                 </tr>
               ))}
-              {assignments.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-alt)' }}>No assignments for this day.</td></tr>}
+              {assignments.length === 0 && (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-alt)' }}>
+                    No assignments for this day.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
-        <div className="card" style={{ marginTop: 18 }}>
-          <h2 style={{ margin: 0 }}>Add assignment</h2>
-          <p className="subtitle" style={{ margin: '8px 0 12px' }}>Assign a staff member to a location for a day.</p>
-          {isAdmin ? (
-            <form className="form" onSubmit={createAssignment}>
-              <div className="form-grid">
-                <label>Staff</label>
-                <select value={formStaff} onChange={(e) => setFormStaff(Number(e.target.value))}>
-                  <option value="">Choose staff&hellip;</option>
-                  {staff.map((s) => <option key={s.id} value={s.id}>{s.employeeNumber} &mdash; {s.displayName}</option>)}
-                </select>
-                <label>Location</label>
-                <select value={formLocation} onChange={(e) => setFormLocation(Number(e.target.value))}>
-                  <option value="">Choose location&hellip;</option>
-                  {locations.map((l) => <option key={l.id} value={l.id}>{l.name} &mdash; {l.address}</option>)}
-                </select>
-                <label>Date</label>
-                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-              </div>
-              <button type="submit" className="btn btn-primary" disabled={!formStaff || !formLocation || saving}>
-                {saving ? 'Assigning...' : 'Add assignment'}
-              </button>
-            </form>
-          ) : (
-            <p className="subtitle">Create, edit and manage assignments via the admin dashboard.</p>
-          )}
-        </div>
+        {/* Add Assignment Form */}
+        <form className="add-assignment" onSubmit={createAssignment}>
+          <div className="form-title">Add Assignment</div>
+          <div className="form-subtitle">Assign a staff member to a location for a day.</div>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Staff</label>
+              <select value={formStaff} onChange={(e) => setFormStaff(Number(e.target.value))}>
+                <option value="">Choose staff...</option>
+                {staff.map((s) => <option key={s.id} value={s.id}>{s.employeeNumber} — {s.displayName}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Location</label>
+              <select value={formLocation} onChange={(e) => setFormLocation(Number(e.target.value))}>
+                <option value="">Choose location...</option>
+                {locations.map((l) => <option key={l.id} value={l.id}>{l.name} — {l.address}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Date</label>
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            </div>
+          </div>
+          <button type="submit" className="btn-primary" disabled={!formStaff || !formLocation || saving}>
+            {saving ? 'Assigning...' : 'Add Assignment'}
+          </button>
+        </form>
       </div>
     </div>
   )

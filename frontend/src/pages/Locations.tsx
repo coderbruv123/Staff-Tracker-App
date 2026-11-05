@@ -44,66 +44,92 @@ export default function Locations() {
 
   return (
     <div>
-      <div className="page-head">
-        <div>
-          <h1>Locations</h1>
-          <p className="subtitle">{isAdmin ? 'Where your team works each day' : 'Your location for the day'}</p>
-        </div>
-        {isAdmin && (
-          <div className="card card-grid">
-            <div className="stat"><div className="num">{locations.length}</div><span>Active locations</span></div>
+      <div className="topbar">
+        <button className="topbar-back">←</button>
+        <h1 className="topbar-title">Locations</h1>
+        <div className="topbar-actions">
+          <div className="search-box">
+            <span style={{ color: 'var(--text-muted)', fontSize: '16px' }}>🔍</span>
+            <input type="text" placeholder="Search locations..." />
           </div>
-        )}
+          <div className="avatar-stack">
+            <span className="active-avatar">A</span>
+          </div>
+        </div>
       </div>
 
-      {isAdmin && (
-        <div className="card" style={{ marginBottom: 18 }}>
-          <h2 style={{ margin: 0 }}>Add location</h2>
-          <p className="subtitle" style={{ margin: '8px 0 12px' }}>A new place staff will be assigned to today.</p>
-          <form className="form" onSubmit={onSubmit}>
-            <div className="form-grid">
-              <label>Name</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Location 1" required />
-              <label>Address</label>
-              <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="100 Main St" />
-              <label>Notes</label>
-              <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional notes" />
+      <div className="content">
+        {isAdmin && (
+          <>
+            <div className="staff-header">
+              <div>
+                <h1>Locations</h1>
+                <p className="subtitle">Where your team works each day</p>
+              </div>
+              <div className="stat-card">
+                <div className="label">Active Locations</div>
+                <div className="num">{locations.length}</div>
+                <div className="subtitle">Today</div>
+              </div>
             </div>
-            {error && <p className="error">{error}</p>}
-            <button type="submit" className="btn btn-primary" disabled={saving || !name.trim()}>
-              {saving ? 'Saving...' : 'Add location'}
-            </button>
-          </form>
-        </div>
-      )}
-
-      <div className="card">
-        <h2 style={{ margin: 0 }}>Locations</h2>
-        {locations.length === 0 ? (
-          <p className="subtitle">No locations yet.</p>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Name</th><th>Address</th><th>Coordinates</th><th>Notes</th></tr>
-              </thead>
-              <tbody>
-                {locations.map((l) => (
-                  <tr key={l.id}>
-                    <td><strong>{l.name}</strong></td>
-                    <td>{l.address}</td>
-                    <td className="coord">
-                      {l.latitude != null && l.longitude != null
-                        ? `Lat ${Number(l.latitude).toFixed(5)}, Lng ${Number(l.longitude).toFixed(5)}`
-                        : '—'}
-                    </td>
-                    <td>{l.notes}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            <div className="add-assignment" style={{ marginBottom: 16 }}>
+              <div className="form-title">Add Location</div>
+              <div className="form-subtitle">A new place staff will be assigned to today.</div>
+              <form onSubmit={onSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-end' }}>
+                <div className="form-group" style={{ flex: 1, minWidth: 160 }}>
+                  <label>Name</label>
+                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Location 1" required />
+                </div>
+                <div className="form-group" style={{ flex: 1, minWidth: 160 }}>
+                  <label>Address</label>
+                  <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="100 Main St" />
+                </div>
+                <div className="form-group" style={{ flex: 1, minWidth: 160 }}>
+                  <label>Notes</label>
+                  <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional notes" />
+                </div>
+                <button type="submit" className="btn-primary" disabled={saving || !name.trim()} style={{ alignSelf: 'flex-end' }}>
+                  {saving ? 'Saving...' : 'Add Location'}
+                </button>
+              </form>
+              {error && <p style={{ marginTop: 8, backgroundColor: 'var(--danger-light)', color: 'var(--danger)', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--danger-light)' }}>{error}</p>}
+            </div>
+          </>
         )}
+
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Coordinates</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {locations.map((l) => (
+                <tr key={l.id}>
+                  <td><strong>{l.name}</strong></td>
+                  <td>{l.address}</td>
+                  <td className="badge-staff-number">
+                    {l.latitude != null && l.longitude != null
+                      ? `Lat ${Number(l.latitude).toFixed(5)}, Lng ${Number(l.longitude).toFixed(5)}`
+                      : '—'}
+                  </td>
+                  <td>{l.notes}</td>
+                </tr>
+              ))}
+              {locations.length === 0 && (
+                <tr>
+                  <td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-alt)' }}>
+                    No locations yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

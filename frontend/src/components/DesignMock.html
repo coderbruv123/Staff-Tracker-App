@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StaffTracker — Dashboard</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface-2: #f1f5f9;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --primary-light: #eef2ff;
+    --success: #10b981;
+    --success-light: #d1fae5;
+    --info: #3b82f6;
+    --info-light: #dbeafe;
+    --warning: #f59e0b;
+    --warning-light: #fef3c7;
+    --danger: #ef4444;
+    --danger-light: #fee2e2;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.04);
+    --sidebar-width: 260px;
+    --header-height: 64px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ===== Layout ===== */
+  .app {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar-header {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .brand-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary), #7c3aed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+  }
+
+  .brand-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .brand-badge {
+    margin-left: auto;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .brand-badge.admin { background: var(--primary-light); color: var(--primary); }
+  .brand-badge.staff { background: var(--info-light); color: var(--info); }
+
+  .sidebar-nav {
+    padding: 16px 0;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .nav-section {
+    margin-bottom: 8px;
+  }
+
+  .nav-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    padding: 8px 24px 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border-left: 3px solid transparent;
+  }
+
+  .nav-item:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  .nav-item.active {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-left-color: var(--primary);
+    font-weight: 600;
+  }
+
+  .nav-item .icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .nav-item .icon.dashboard { background: var(--info-light); color: var(--info); }
+  .nav-item .icon.staff { background: var(--success-light); color: var(--success); }
+  .nav-item .icon.locations { background: var(--warning-light); color: var(--warning); }
+  .nav-item .icon.history { background: var(--info-light); color: var(--info); }
+  .nav-item .icon.self { background: var(--primary-light); color: var(--primary); }
+
+  .nav-item .badge {
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-size: 14px; font-weight: 600; }
+  .user-role { font-size: 12px; color: var(--text-muted); }
+
+  .logout-btn {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .logout-btn:hover { background: var(--surface-2); color: var(--danger); }
+
+  /* ===== Main Content ===== */
+  .main {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    height: var(--header-height);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-back {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px;
+  }
+
+  .topbar-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .topbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    width: 280px;
+  }
+
+  .search-box input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 13px;
+    width: 100%;
+    color: var(--text);
+  }
+
+  .avatar-stack {
+    display: flex;
+    gap: 4px;
+  }
+
+  .avatar-stack span {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .avatar-stack span:hover { background: var(--border); }
+
+  .avatar-stack .active-avatar {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+
+  /* ===== Page Content ===== */
+  .content {
+    padding: 24px 24px 48px;
+    max-width: 1400px;
+    width: 100%;
+  }
+
+  /* ===== Stat Cards ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.15s ease;
+  }
+
+  .stat-card:hover { box-shadow: var(--shadow-lg); }
+
+  .stat-card .label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .stat-card .num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .stat-card .num.reached { color: var(--success); }
+  .stat-card .num.inprogress { color: var(--info); }
+  .stat-card .num.pending { color: var(--warning); }
+  .stat-card .num.notreached { color: var(--danger); }
+
+  .stat-card .subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* ===== Status Pills ===== */
+  .status-pills {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .status-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+
+  .status-pill .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .status-pill .bar {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+
+  .status-pill .bar .fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .fill.reached { background: var(--success); }
+  .fill.inprogress { background: var(--info); }
+  .fill.pending { background: var(--warning); }
+  .fill.notreached { background: var(--danger); }
+
+  .status-pill .count {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 8px;
+  }
+
+  /* ===== Table ===== */
+  .table-container {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th {
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border-bottom: 2px solid var(--border);
+  }
+
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: var(--surface-2); }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-reached { background: var(--success-light); color: var(--success); }
+  .badge-inprogress { background: var(--info-light); color: var(--info); }
+  .badge-pending { background: var(--warning-light); color: var(--warning); }
+  .badge-notreached { background: var(--danger-light); color: var(--danger); }
+
+  .badge-date { font-size: 12px; color: var(--text-muted); }
+
+  .badge-staff-number { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+  .action-select {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text);
+  }
+
+  .action-select:focus { outline: 2px solid var(--primary-light); border-color: var(--primary); }
+
+  /* ===== Add Assignment Form ===== */
+  .add-assignment {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .add-assignment .form-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .add-assignment .form-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .form-group select, .form-group input {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-group select:focus, .form-group input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+  }
+
+  .btn-primary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--primary);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-primary:hover { background: var(--primary-hover); }
+
+  /* ===== Staff Management ===== */
+  .staff-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .staff-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .staff-header .subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .staff-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+
+  .pending-box .form-title { color: var(--warning); }
+  .pending-box .form-subtitle { color: var(--warning); }
+
+  .staff-table td:first-child { font-weight: 500; }
+
+  .staff-table .pill {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .pill-active { background: var(--success-light); color: var(--success); }
+  .pill-pending { background: var(--warning-light); color: var(--warning); }
+
+  .staff-action {
+    padding: 6px 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .staff-action.approve { background: var(--success); color: #fff; }
+  .staff-action.approve:hover { background: #059669; }
+
+  /* ===== Profile ===== */
+  .profile-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  /* ===== Self Page ===== */
+  .self-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .self-card .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .self-card .card-subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .self-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .self-stat {
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+  }
+
+  .self-stat .num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .self-stat .num.reached { color: var(--success); }
+  .self-stat .num.inprogress { color: var(--info); }
+  .self-stat .num.notreached { color: var(--danger); }
+
+  .self-stat .label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .checkin-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .checkin-actions .btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .checkin-actions .btn:active { transform: scale(0.98); }
+
+  .checkin-actions .btn-success {
+    background: var(--success);
+    color: #fff;
+  }
+
+  .checkin-actions .btn-success:hover { background: #059669; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+
+  .checkin-actions .btn-primary {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .checkin-actions .btn-primary:hover { background: #4338ca; box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+
+  .checkin-actions .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .checkin-actions .btn-ghost:hover { background: var(--surface-2); }
+
+  .geofence {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-size: 14px;
+  }
+
+  .geofence-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .geofence-within {
+    background: var(--success-light);
+    border: 1px solid var(--success-light);
+  }
+
+  .geofence-within .geofence-dot { background: var(--success); }
+
+  .geofence-outside {
+    background: var(--danger-light);
+    border: 1px solid var(--danger-light);
+  }
+
+  .geofence-outside .geofence-dot { background: var(--danger); }
+
+  .geofence-strap { flex: 1; font-weight: 500; }
+  .geofence-cord { font-size: 12px; color: var(--text-muted); }
+
+  .activity-log table {
+    font-size: 13px;
+  }
+
+  .activity-log th { padding: 10px 12px; }
+  .activity-log td { padding: 10px 12px; }
+
+  /* ===== Locations ===== */
+  .location-list table { font-size: 14px; }
+
+  /* ===== History ===== */
+  .history-table { font-size: 14px; }
+
+  /* ===== Login ===== */
+  .login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 50%, #a855f7 100%);
+    padding: 24px;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 40px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+  }
+
+  .login-card .brand-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+    box-shadow: 0 8px 20px rgba(79,70,229,0.3);
+  }
+
+  .login-card h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .login-card .subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .login-form .form-group {
+    margin-bottom: 16px;
+  }
+
+  .login-form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .login-form input {
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: inherit;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .login-form input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+  }
+
+  .login-form .error {
+    background: var(--danger-light);
+    color: var(--danger);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .login-form .btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .login-card .footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1024px) {
+    .sidebar {
+      transform: translateX(-100%);
+      width: 260px;
+    }
+
+    .sidebar.open { transform: translateX(0); }
+
+    .main { margin-left: 0; }
+
+    .content { padding: 16px; }
+
+    .stats-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  }
+
+  @media (max-width: 768px) {
+    .topbar { padding: 0 12px; }
+    .topbar-title { font-size: 16px; }
+
+    .search-box { display: none; }
+
+    .content { padding: 16px 12px 32px; }
+
+    .stats-grid { grid-template-columns: 1fr; }
+    .status-pills { grid-template-columns: 1fr; }
+
+    .sidebar { transform: translateX(-100%); }
+
+    .nav-section-title { padding-left: 12px; }
+
+    .nav-item { padding: 10px 12px; }
+    .nav-item .badge { display: none; }
+
+    .user-profile { display: none; }
+
+    .topbar-back { display: flex; }
+
+    .add-assignment { padding: 16px; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN PAGE ============ -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-icon">S</div>
+      <div>
+        <h1>StaffTracker</h1>
+        <p class="subtitle">Manage your team's daily assignments and check-ins</p>
+      </div>
+    </div>
+
+    <form class="login-form" id="loginForm">
+      <div class="error" id="loginError" style="display:none;"></div>
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn" style="background:var(--primary);color:#fff;">Sign in</button>
+    </form>
+
+    <div class="footer">
+      <p>StaffTracker &copy; 2026</p>
+      <p style="margin-top:4px;">Demo: admin@stafftracker.local / Admin123! &middot; staff1@stafftracker.local / Staff123!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD ============ -->
+<div class="app" id="app" style="display:none;">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="brand">
+        <div class="brand-icon">S</div>
+        <div>
+          <div class="brand-name">StaffTracker</div>
+        </div>
+      </a>
+      <div class="brand-badge admin">Admin</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Main</div>
+        <a href="#" class="nav-item active" data-page="dashboard">
+          <span class="icon dashboard">📊</span>
+          Dashboard
+        </a>
+        <a href="#" class="nav-item" data-page="staff">
+          <span class="icon staff">👥</span>
+          Staff
+          <span class="badge badge-pending" id="pendingBadge">3</span>
+        </a>
+        <a href="#" class="nav-item" data-page="locations">
+          <span class="icon locations">📍</span>
+          Locations
+        </a>
+        <a href="#" class="nav-item" data-page="history">
+          <span class="icon history">📋</span>
+          History
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">A</div>
+        <div class="user-info">
+          <div class="user-name">System Admin</div>
+          <div class="user-role">Administrator</div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="topbar-back" onclick="toggleSidebar()">←</button>
+      <h1 class="topbar-title">Dashboard</h1>
+      <div class="topbar-actions">
+        <div class="search-box">
+          <span style="color:var(--text-muted);font-size:16px;">🔍</span>
+          <input type="text" placeholder="Search assignments, staff, locations...">
+        </div>
+        <div class="avatar-stack">
+          <span class="active-avatar">A</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">Total Assignments</div>
+          <div class="num">12</div>
+          <div class="subtitle">For today, Nov 5</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Reached</div>
+          <div class="num reached">4</div>
+          <div class="subtitle">Status: Reached</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">In Progress</div>
+          <div class="num inprogress">3</div>
+          <div class="subtitle">Currently on site</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Pending</div>
+          <div class="num pending">4</div>
+          <div class="subtitle">Not yet checked in</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Not Reached</div>
+          <div class="num notreached">1</div>
+          <div class="subtitle">Outside geofence</div>
+        </div>
+      </div>
+
+      <!-- Status Pills -->
+      <div class="status-pills">
+        <div class="status-pill">
+          <div class="label">Reached</div>
+          <div class="bar"><div class="fill reached" style="width:33%"></div></div>
+          <div class="count">4</div>
+        </div>
+        <div class="status-pill">
+          <div class="label">In Progress</div>
+          <div class="bar"><div class="fill inprogress" style="width:25%"></div></div>
+          <div class="count">3</div>
+        </div>
+        <div class="status-pill">
+          <div class="label">Pending</div>
+          <div class="bar"><div class="fill pending" style="width:33%"></div></div>
+          <div class="count">4</div>
+        </div>
+        <div class="status-pill">
+          <div class="label">Not Reached</div>
+          <div class="bar"><div class="fill Notreached" style="width:8%"></div></div>
+          <div class="count">1</div>
+        </div>
+      </div>
+
+      <!-- Today's Assignments Table -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Staff</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Checked In</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <strong>John Smith</strong><br>
+                <span class="badge-staff-number">STAFF-001</span>
+              </td>
+              <td>Location 1 — 100 Main St, City A</td>
+              <td><span class="status-badge badge-inprogress">In Progress</span></td>
+              <td><span class="badge-date">Nov 5, 10:26 AM</span></td>
+              <td>
+                <select class="action-select">
+                  <option>In Progress</option>
+                  <option>Reached</option>
+                  <option>Pending</option>
+                  <option>Not Reached</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Sarah Johnson</strong><br>
+                <span class="badge-staff-number">STAFF-002</span>
+              </td>
+              <td>Location 2 — 200 Oak Ave, City B</td>
+              <td><span class="status-badge badge-pending">Pending</span></td>
+              <td><span class="badge-date">—</span></td>
+              <td>
+                <select class="action-select">
+                  <option>In Progress</option>
+                  <option>Reached</option>
+                  <option>Pending</option>
+                  <option>Not Reached</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Mike Wilson</strong><br>
+                <span class="badge-staff-number">STAFF-003</span>
+              </td>
+              <td>Location 3 — 300 Pine Rd, City C</td>
+              <td><span class="status-badge badge-pending">Pending</span></td>
+              <td><span class="badge-date">—</span></td>
+              <td>
+                <select class="action-select">
+                  <option>In Progress</option>
+                  <option>Reached</option>
+                  <option>Pending</option>
+                  <option>Not Reached</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Emily Chen</strong><br>
+                <span class="badge-staff-number">STAFF-004</span>
+              </td>
+              <td>Location 1 — 100 Main St, City A</td>
+              <td><span class="status-badge badge-pending">Pending</span></td>
+              <td><span class="badge-date">—</span></td>
+              <td>
+                <select class="action-select">
+                  <option>In Progress</option>
+                  <option>Reached</option>
+                  <option>Pending</option>
+                  <option>Not Reached</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>David Brown</strong><br>
+                <span class="badge-staff-number">STAFF-005</span>
+              </td>
+              <td>Location 2 — 200 Oak Ave, City B</td>
+              <td><span class="status-badge badge-notreached">Not Reached</span></td>
+              <td><span class="badge-date">—</span></td>
+              <td>
+                <select class="action-select">
+                  <option>In Progress</option>
+                  <option>Reached</option>
+                  <option>Pending</option>
+                  <option>Not Reached</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Add Assignment -->
+      <div class="add-assignment">
+        <div class="form-title">Add Assignment</div>
+        <div class="form-subtitle">Assign a staff member to a location for a day.</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Staff</label>
+            <select id="addStaff">
+              <option value="">Choose staff&hellip;</option>
+              <option value="1">STAFF-001 — John Smith</option>
+              <option value="2">STAFF-002 — Sarah Johnson</option>
+              <option value="3">STAFF-003 — Mike Wilson</option>
+              <option value="4">STAFF-004 — Emily Chen</option>
+              <option value="5">STAFF-005 — David Brown</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Location</label>
+            <select id="addLocation">
+              <option value="">Choose location&hellip;</option>
+              <option value="1">Location 1 — 100 Main St, City A</option>
+              <option value="2">Location 2 — 200 Oak Ave, City B</option>
+              <option value="3">Location 3 — 300 Pine Rd, City C</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="addDate" value="2026-11-05">
+          </div>
+        </div>
+        <button class="btn-primary" style="margin-top:16px;">Add Assignment</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============ STAFF PAGE ============ -->
+<div class="app" id="staffPage" style="display:none;">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="brand">
+        <div class="brand-icon">S</div>
+        <div>
+          <div class="brand-name">StaffTracker</div>
+        </div>
+      </a>
+      <div class="brand-badge staff">Staff</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">My Day</div>
+        <a href="#" class="nav-item" data-page="dashboard">
+          <span class="icon dashboard">📊</span>
+          Dashboard
+        </a>
+        <a href="#" class="nav-item" data-page="self">
+          <span class="icon self">👤</span>
+          My Day
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">S</div>
+        <div class="user-info">
+          <div class="user-name">Sarah Johnson</div>
+          <div class="user-role">Staff</div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <button class="topbar-back" onclick="toggleSidebar()">←</button>
+      <h1 class="topbar-title">My Day</h1>
+      <div class="topbar-actions">
+        <div class="avatar-stack">
+          <span class="active-avatar">S</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="self-card">
+        <h1 class="card-title">My Day</h1>
+        <p class="card-subtitle">Sarah Johnson &middot; Location 2 — 200 Oak Ave, City B</p>
+        <div class="self-stats">
+          <div class="self-stat">
+            <div class="num inprogress">In Progress</div>
+            <div class="label">Status</div>
+          </div>
+          <div class="self-stat">
+            <div class="num">Nov 5, 10:26 AM</div>
+            <div class="label">Checked In</div>
+          </div>
+          <div class="self-stat">
+            <div class="num">305 m</div>
+            <div class="label">Distance from site</div>
+          </div>
+        </div>
+
+        <div class="checkin-actions">
+          <button class="btn btn-success">I have arrived</button>
+          <button class="btn btn-ghost">Use my position</button>
+        </div>
+
+        <div class="geofence geofence-within">
+          <span class="geofence-dot"></span>
+          <span class="geofence-strap">You are within the location area</span>
+          <span class="geofence-cord">~12 m from location</span>
+        </div>
+
+        <div class="self-stat" style="margin-top:16px;">
+          <div class="num">40.71280</div>
+          <div class="label">Your location: Lat</div>
+        </div>
+        <div class="self-stat" style="margin-top:0;">
+          <div class="num">-74.00600</div>
+          <div class="label">Lng</div>
+        </div>
+      </div>
+
+      <div class="self-card" style="margin-top:16px;">
+        <h2 class="card-title">Activity Log</h2>
+        <div class="activity-log">
+          <table>
+            <thead>
+              <tr><th>Time</th><th>Event</th><th>Lat</th><th>Lng</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Nov 5, 10:26 AM</td><td>CheckIn</td><td>40.71280</td><td>-74.00600</td></tr>
+              <tr><td>Nov 5, 10:25 AM</td><td>CheckIn</td><td>40.71280</td><td>-74.00600</td></tr>
+              <tr><td>Nov 5, 10:24 AM</td><td>CheckOut</td><td>40.71280</td><td>-74.00600</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Demo navigation
+  document.querySelectorAll('[data-page]').forEach(item => {
+    item.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelectorAll('[data-page]').forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+      alert('Navigation: ' + item.dataset.page);
+    });
+  });
+
+  function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('open');
+  }
+
+  function logout() {
+    if (confirm('Log out?')) {
+      window.location.hash = '#login';
+    }
+  }
+</script>
+
+</body>
+</html>
