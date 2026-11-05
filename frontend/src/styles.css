@@ -226,7 +226,6 @@ body {
 
 /* ===== Main Content ===== */
 .main {
-  flex: 1;
   margin-left: 260px;
   display: flex;
   flex-direction: column;
@@ -324,6 +323,7 @@ body {
   padding: 24px 24px 48px;
   max-width: 1400px;
   width: 100%;
+  margin: 0 auto;
 }
 
 /* ===== Stat Cards ===== */
