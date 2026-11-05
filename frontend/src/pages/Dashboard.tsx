@@ -182,25 +182,29 @@ export default function Dashboard() {
         <div className="card" style={{ marginTop: 18 }}>
           <h2 style={{ margin: 0 }}>Add assignment</h2>
           <p className="subtitle" style={{ margin: '8px 0 12px' }}>Assign a staff member to a location for a day.</p>
-          <form className="form" onSubmit={createAssignment}>
-            <div className="form-grid">
-              <label>Staff</label>
-              <select value={formStaff} onChange={(e) => setFormStaff(Number(e.target.value))}>
-                <option value="">Choose staff&hellip;</option>
-                {staff.map((s) => <option key={s.id} value={s.id}>{s.employeeNumber} &mdash; {s.displayName}</option>)}
-              </select>
-              <label>Location</label>
-              <select value={formLocation} onChange={(e) => setFormLocation(Number(e.target.value))}>
-                <option value="">Choose location&hellip;</option>
-                {locations.map((l) => <option key={l.id} value={l.id}>{l.name} &mdash; {l.address}</option>)}
-              </select>
-              <label>Date</label>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-            </div>
-            <button type="submit" className="btn btn-primary" disabled={!formStaff || !formLocation || saving}>
-              {saving ? 'Assigning...' : 'Add assignment'}
-            </button>
-          </form>
+          {isAdmin ? (
+            <form className="form" onSubmit={createAssignment}>
+              <div className="form-grid">
+                <label>Staff</label>
+                <select value={formStaff} onChange={(e) => setFormStaff(Number(e.target.value))}>
+                  <option value="">Choose staff&hellip;</option>
+                  {staff.map((s) => <option key={s.id} value={s.id}>{s.employeeNumber} &mdash; {s.displayName}</option>)}
+                </select>
+                <label>Location</label>
+                <select value={formLocation} onChange={(e) => setFormLocation(Number(e.target.value))}>
+                  <option value="">Choose location&hellip;</option>
+                  {locations.map((l) => <option key={l.id} value={l.id}>{l.name} &mdash; {l.address}</option>)}
+                </select>
+                <label>Date</label>
+                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              </div>
+              <button type="submit" className="btn btn-primary" disabled={!formStaff || !formLocation || saving}>
+                {saving ? 'Assigning...' : 'Add assignment'}
+              </button>
+            </form>
+          ) : (
+            <p className="subtitle">Create, edit and manage assignments via the admin dashboard.</p>
+          )}
         </div>
       </div>
     </div>

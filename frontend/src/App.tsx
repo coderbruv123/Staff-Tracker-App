@@ -15,10 +15,14 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children, role }: { children: React.ReactNode, role?: 'admin' | 'staff' }) {
   const { user, loading } = useAuth()
   if (loading) return <div className="auth-splash">Loading&hellip;</div>
   if (!user) return <Navigate to="/login" replace />
+  // Admin routes require admin role
+  if (role === 'admin' && !user.isAdmin) return <Navigate to="/self" replace />
+  // Staff routes require staff role (non-admin)
+  if (role === 'staff' && user.isAdmin) return <Navigate to="/admin/dashboard" replace />
   return <>{children}</>
 }
 
@@ -27,14 +31,14 @@ function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-        <Route path="/admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/admin/staff" element={<ProtectedRoute><Staff /></ProtectedRoute>} />
-        <Route path="/admin/locations" element={<ProtectedRoute><Locations /></ProtectedRoute>} />
-        <Route path="/admin/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-        <Route path="/self" element={<ProtectedRoute><Self /></ProtectedRoute>} />
+        <Route path="/admin/dashboard" element={<ProtectedRoute role="admin"><Dashboard /></ProtectedRoute>} />
+        <Route path="/admin/staff" element={<ProtectedRoute role="admin"><Staff /></ProtectedRoute>} />
+        <Route path="/admin/locations" element={<ProtectedRoute role="admin"><Locations /></ProtectedRoute>} />
+        <Route path="/admin/history" element={<ProtectedRoute role="admin"><History /></ProtectedRoute>} />
+        <Route path="/self" element={<ProtectedRoute role="staff"><Self /></ProtectedRoute>} />
         <Route path="/" element={<Navigate to={useAuth().isAdmin ? '/admin/dashboard' : '/self'} replace />} />
-        <Route path="/assignments" element={<ProtectedRoute><Self /></ProtectedRoute>} />
-        <Route path="/checkins" element={<ProtectedRoute><Self /></ProtectedRoute>} />
+        <Route path="/assignments" element={<ProtectedRoute role="staff"><Self /></ProtectedRoute>} />
+        <Route path="/checkins" element={<ProtectedRoute role="staff"><Self /></ProtectedRoute>} />
       </Route>
     </Routes>
   )
